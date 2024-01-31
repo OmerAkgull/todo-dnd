@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 type Quote = {
   id: string;
@@ -27,7 +29,7 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 const QuoteItem = styled.div`
-  width: 315px;
+  width: 300px;
   border: 1px solid grey;
   margin-bottom: ${grid}px;
   background-color: #6b6a6a;
@@ -60,7 +62,7 @@ const RemoveButton = styled.button`
 `;
 
 const TodoInput = styled.input`
-  width: 315px;
+  width: 300px;
   height: 40px;
   margin-bottom: 0.5rem;
   border: 1px solid lightgrey;
@@ -99,7 +101,10 @@ function Quote({ quote, index, onRemove }) {
           {...provided.dragHandleProps}
         >
           {quote.content}
-          <RemoveButton onClick={() => onRemove(quote.id)}>Remove</RemoveButton>
+          <RemoveButton onClick={() => onRemove(quote.id)}>
+            {" "}
+            <FontAwesomeIcon icon={faTrash} />
+          </RemoveButton>
         </QuoteItem>
       )}
     </Draggable>
