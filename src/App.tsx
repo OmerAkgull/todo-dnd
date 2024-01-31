@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import "./App.css";
+
 
 type Quote = {
   id: string;
@@ -94,6 +96,8 @@ function QuoteApp() {
   }
 
   return (
+    <>
+    <h1>To-Do</h1>
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="list">
         {(provided) => (
@@ -104,6 +108,7 @@ function QuoteApp() {
         )}
       </Droppable>
     </DragDropContext>
+    </>
   );
 }
 
