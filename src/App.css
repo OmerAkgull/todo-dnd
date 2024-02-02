@@ -15,6 +15,7 @@ body {
   align-items: center;
   font-family: "Bricolage Grotesque", sans-serif;
   font-size: 1.1em;
+  background: linear-gradient(to right, #6c5ce7, #fd79a8);
 }
 img,
 picture,

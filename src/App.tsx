@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
 type Quote = {
   id: string;
@@ -30,14 +30,18 @@ const reorder = (list, startIndex, endIndex) => {
 
 const QuoteItem = styled.div`
   width: 300px;
-  border: 1px solid grey;
+  border: 2px solid black;
   margin-bottom: ${grid}px;
-  background-color: #6b6a6a;
-  color: white;
   padding: ${grid}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: black;
+  background-color: white;
+  border-radius: 5px;
+  @media (max-width: 600px) {
+    width: 250px;
+  }
 `;
 
 const RemoveButton = styled.button`
@@ -61,12 +65,36 @@ const RemoveButton = styled.button`
   }
 `;
 
+const EditButton = styled.button`
+  background-color: #1980d4;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  &:hover {
+    box-shadow: rgba(17, 17, 26, 0.2) 0px 1px 0px,
+      rgba(17, 17, 26, 0.2) 0px 8px 24px, rgba(17, 17, 26, 0.2) 0px 16px 48px;
+    background-color: #1150da;
+  }
+
+  &:active {
+    box-shadow: rgba(17, 17, 26, 0.3) 0px 1px 0px,
+      rgba(17, 17, 26, 0.3) 0px 4px 8px, rgba(17, 17, 26, 0.3) 0px 16px 32px;
+    background-color: #1c5bb9;
+  }
+`;
+
 const TodoInput = styled.input`
   width: 300px;
   height: 40px;
   margin-bottom: 0.5rem;
   border: 1px solid lightgrey;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  @media (max-width: 600px) {
+    width: 250px;
+  }
 `;
 const AddButton = styled.button`
   margin-left: 0.5rem;
@@ -101,10 +129,15 @@ function Quote({ quote, index, onRemove }) {
           {...provided.dragHandleProps}
         >
           {quote.content}
-          <RemoveButton onClick={() => onRemove(quote.id)}>
-            {" "}
-            <FontAwesomeIcon icon={faTrash} />
-          </RemoveButton>
+          <div>
+            <EditButton>
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </EditButton>
+            <RemoveButton onClick={() => onRemove(quote.id)}>
+              {" "}
+              <FontAwesomeIcon icon={faTrash} />
+            </RemoveButton>
+          </div>
         </QuoteItem>
       )}
     </Draggable>
