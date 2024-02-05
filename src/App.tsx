@@ -26,7 +26,6 @@ const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
-
   return result;
 };
 
@@ -121,6 +120,12 @@ const AddButton = styled.button`
   }
 `;
 
+const EditInput = styled.input`
+  width: 100%;
+  border: 1px solid lightgrey;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+`;
+
 function Quote({ quote, index, onRemove, onClick }) {
   return (
     <Draggable draggableId={quote.id} index={index}>
@@ -132,7 +137,7 @@ function Quote({ quote, index, onRemove, onClick }) {
         >
           {quote.content}
           <div>
-            <EditButton onClick={onClick} >
+            <EditButton onClick={onClick}>
               <FontAwesomeIcon icon={faPenToSquare} />
             </EditButton>
             <RemoveButton onClick={() => onRemove(quote.id)}>
@@ -148,7 +153,13 @@ function Quote({ quote, index, onRemove, onClick }) {
 
 const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }) {
   return quotes.map((quote, index) => (
-    <Quote quote={quote} index={index} key={quote.id} onRemove={onRemove} onClick={onClick} />
+    <Quote
+      quote={quote}
+      index={index}
+      key={quote.id}
+      onRemove={onRemove}
+      onClick={onClick}
+    />
   ));
 });
 
@@ -156,6 +167,7 @@ function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
   const [show, setShow] = useState(false);
+  const [editTodo, setEditTodo] = useState("");
 
   const showModal = () => {
     setShow(true);
@@ -167,11 +179,24 @@ function QuoteApp() {
 
   useEffect(() => {
     const savedToDos = localStorage.getItem("quotes");
-    if (savedToDos) {
-      setState({ quotes: JSON.parse(savedToDos) });
+    if (savedToDos && savedToDos !== "null" && savedToDos !== "") {
+      try {
+        const parsedQuotes = JSON.parse(savedToDos);
+        if (Array.isArray(parsedQuotes)) {
+          setState({ quotes: parsedQuotes });
+        } else {
+          console.warn("Invalid quotes data in localStorage");
+          saveToDos(initial);
+          setState({ quotes: initial });
+        }
+      } catch (error) {
+        console.warn("Invalid quotes data in localStorage", error);
+        saveToDos(initial);
+        setState({ quotes: initial });
+      }
     } else {
-      setState({ quotes: initial });
       saveToDos(initial);
+      setState({ quotes: initial });
     }
   }, []);
 
@@ -195,7 +220,7 @@ function QuoteApp() {
     );
 
     setState({ quotes });
-    saveToDos();
+    saveToDos(quotes);
   }
 
   function onRemove(id) {
@@ -223,6 +248,24 @@ function QuoteApp() {
     }
   }
 
+  function EditTodo() {
+    if (editTodo.trim() !== "") {
+      const editedTodo = {
+        id: `id-${state.quotes.length}`,
+        content: editTodo.trim(),
+      };
+
+      setState((prevState) => {
+        const quotes = [...prevState.quotes, editedTodo];
+        saveToDos(quotes);
+        return { quotes };
+      });
+
+      setEditTodo("");
+      setShow(false);
+    }
+  }
+
   return (
     <>
       <h1>To-Do List</h1>
@@ -235,7 +278,11 @@ function QuoteApp() {
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              <QuoteList quotes={state.quotes} onRemove={onRemove} onClick={showModal} />
+              <QuoteList
+                quotes={state.quotes}
+                onRemove={onRemove}
+                onClick={showModal}
+              />
               {provided.placeholder}
             </div>
           )}
@@ -245,12 +292,15 @@ function QuoteApp() {
         <Modal.Header closeButton>
           <Modal.Title>Edit To-Do</Modal.Title>
         </Modal.Header>
-        <input></input>
+        <EditInput
+          value={editTodo}
+          onChange={(e) => setEditTodo(e.target.value)}
+        ></EditInput>
         <Modal.Footer>
           <Button variant="secondary" onClick={hideModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={hideModal}>
+          <Button variant="primary" onClick={EditTodo}>
             Save Changes
           </Button>
         </Modal.Footer>
