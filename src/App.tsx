@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
@@ -22,8 +22,12 @@ const initial = Array.from({ length: 0 }, (v, k) => k).map((k) => {
 });
 
 const grid = 8;
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
+const reorder = (
+  list: Quote[],
+  startIndex: number,
+  endIndex: number
+): Quote[] => {
+  const result: Quote[] = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
   return result;
@@ -127,7 +131,17 @@ const EditInput = styled.input`
   margin-left: 15%;
 `;
 
-function Quote({ quote, index, onRemove, onClick }) {
+type QuoteProps = {
+  quote: {
+    id: string;
+    content: string;
+  };
+  index: number;
+  onRemove: (id: string) => void;
+  onClick: () => void;
+};
+
+function Quote({ quote, index, onRemove, onClick }: QuoteProps) {
   return (
     <Draggable draggableId={quote.id} index={index}>
       {(provided) => (
@@ -152,7 +166,16 @@ function Quote({ quote, index, onRemove, onClick }) {
   );
 }
 
-const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }) {
+type QuoteListProps = {
+  quotes: {
+    id: string,
+    content: string,
+  }[];
+  onRemove: (id:string) => void;
+  onClick: () => void;
+}
+
+const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }: QuoteListProps) {
   return quotes.map((quote, index) => (
     <Quote
       quote={quote}
@@ -164,13 +187,12 @@ const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }) {
   ));
 });
 
-
 function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
   const [show, setShow] = useState(false);
   const [editTodo, setEditTodo] = useState("");
-  const [editedTodoId, setEditedTodoId] = useState(null)
+  const [editedTodoId, setEditedTodoId] = useState(null);
 
   const showModal = () => {
     setShow(true);
@@ -203,11 +225,11 @@ function QuoteApp() {
     }
   }, []);
 
-  function saveToDos(quotes) {
+  function saveToDos(quotes: Quote[]): void {
     localStorage.setItem("quotes", JSON.stringify(quotes));
   }
 
-  function onDragEnd(result) {
+  function onDragEnd(result: DropResult) : void {
     if (!result.destination) {
       return;
     }
@@ -226,7 +248,7 @@ function QuoteApp() {
     saveToDos(quotes);
   }
 
-  function onRemove(id) {
+  function onRemove(id: string) {
     setState((prevState) => {
       const quotes = prevState.quotes.filter((quote) => quote.id !== id);
       saveToDos(quotes);
