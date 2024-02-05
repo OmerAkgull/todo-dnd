@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
@@ -29,7 +29,7 @@ const reorder = (list, startIndex, endIndex) => {
 };
 
 const QuoteItem = styled.div`
-  width: 300px;
+  width: 400px;
   border: 2px solid black;
   margin-bottom: ${grid}px;
   padding: ${grid}px;
@@ -87,7 +87,7 @@ const EditButton = styled.button`
 `;
 
 const TodoInput = styled.input`
-  width: 300px;
+  width: 400px;
   height: 40px;
   margin-bottom: 0.5rem;
   border: 1px solid lightgrey;
@@ -154,6 +154,20 @@ function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
 
+  useEffect(() => {
+    const savedToDos = localStorage.getItem("quotes");
+    if (savedToDos) {
+      setState({ quotes: JSON.parse(savedToDos) });
+    } else {
+      setState({ quotes: initial });
+      saveToDos(initial);
+    }
+  }, []);
+
+  function saveToDos(quotes) {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+  }
+
   function onDragEnd(result) {
     if (!result.destination) {
       return;
@@ -170,12 +184,15 @@ function QuoteApp() {
     );
 
     setState({ quotes });
+    saveToDos();
   }
 
   function onRemove(id) {
-    setState((prevState) => ({
-      quotes: prevState.quotes.filter((quote) => quote.id !== id),
-    }));
+    setState((prevState) => {
+      const quotes = prevState.quotes.filter((quote) => quote.id !== id);
+      saveToDos(quotes);
+      return { quotes };
+    });
   }
 
   function handleAddTodo() {
@@ -185,9 +202,11 @@ function QuoteApp() {
         content: todo.trim(),
       };
 
-      setState((prevState) => ({
-        quotes: [...prevState.quotes, newTodo],
-      }));
+      setState((prevState) => {
+        const quotes = [...prevState.quotes, newTodo];
+        saveToDos(quotes);
+        return { quotes };
+      });
 
       setTodo("");
     }
