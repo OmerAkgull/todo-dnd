@@ -51,7 +51,7 @@ const QuoteItem = styled.div`
   background-color: white;
   border-radius: 5px;
   @media (max-width: 600px) {
-    width: 250px;
+    width: 330px;
   }
 `;
 
