@@ -4,6 +4,8 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 
 type Quote = {
   id: string;
@@ -119,7 +121,7 @@ const AddButton = styled.button`
   }
 `;
 
-function Quote({ quote, index, onRemove }) {
+function Quote({ quote, index, onRemove, onClick }) {
   return (
     <Draggable draggableId={quote.id} index={index}>
       {(provided) => (
@@ -130,7 +132,7 @@ function Quote({ quote, index, onRemove }) {
         >
           {quote.content}
           <div>
-            <EditButton>
+            <EditButton onClick={onClick} >
               <FontAwesomeIcon icon={faPenToSquare} />
             </EditButton>
             <RemoveButton onClick={() => onRemove(quote.id)}>
@@ -144,15 +146,24 @@ function Quote({ quote, index, onRemove }) {
   );
 }
 
-const QuoteList = React.memo(function QuoteList({ quotes, onRemove }) {
+const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }) {
   return quotes.map((quote, index) => (
-    <Quote quote={quote} index={index} key={quote.id} onRemove={onRemove} />
+    <Quote quote={quote} index={index} key={quote.id} onRemove={onRemove} onClick={onClick} />
   ));
 });
 
 function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
+  const [show, setShow] = useState(false);
+
+  const showModal = () => {
+    setShow(true);
+  };
+
+  const hideModal = () => {
+    setShow(false);
+  };
 
   useEffect(() => {
     const savedToDos = localStorage.getItem("quotes");
@@ -224,12 +235,26 @@ function QuoteApp() {
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              <QuoteList quotes={state.quotes} onRemove={onRemove} />
+              <QuoteList quotes={state.quotes} onRemove={onRemove} onClick={showModal} />
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
+      <Modal show={show} onHide={hideModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit To-Do</Modal.Title>
+        </Modal.Header>
+        <input></input>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={hideModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={hideModal}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
