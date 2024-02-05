@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 import "./App.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 type Quote = {
   id: string;
@@ -131,6 +137,25 @@ const EditInput = styled.input`
   margin-left: 15%;
 `;
 
+const Footer = styled.footer`
+  background-color: rgba(0, 0, 0, 0.377) !important;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+`;
+
+const GithubIcon = styled(FontAwesomeIcon)`
+  font-size: 1.5rem;
+  cursor: pointer;
+`;
+
+const StyledLink = styled.a`
+  text-decoration: none;
+  color:white;`;
+
 type QuoteProps = {
   quote: {
     id: string;
@@ -165,37 +190,41 @@ function Quote({ quote, index, onRemove, onClick }: QuoteProps) {
     </Draggable>
   );
 }
+// type QuoteListProps = {
+//   quotes: {
+//     id: string;
+//     content: string;
+//   }[];
+//   onRemove: (id: string) => void;
+//   onClick: () => void;
+// };
 
-type QuoteListProps = {
-  quotes: {
-    id: string,
-    content: string,
-  }[];
-  onRemove: (id:string) => void;
-  onClick: () => void;
-}
-
-const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }: QuoteListProps) {
-  return quotes.map((quote, index) => (
-    <Quote
-      quote={quote}
-      index={index}
-      key={quote.id}
-      onRemove={onRemove}
-      onClick={onClick}
-    />
-  ));
-});
+// const QuoteList = React.memo(function QuoteList({
+//   quotes,
+//   onRemove,
+//   onClick,
+// }: QuoteListProps) {
+//   return quotes.map((quote, index) => (
+//     <Quote
+//       quote={quote}
+//       index={index}
+//       key={quote.id}
+//       onRemove={onRemove}
+//       onClick={onClick}
+//     />
+//   ));
+// });
 
 function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
   const [show, setShow] = useState(false);
   const [editTodo, setEditTodo] = useState("");
-  const [editedTodoId, setEditedTodoId] = useState(null);
+  const [currentId, setCurrentId] = useState("");
 
-  const showModal = () => {
+  const showModal = (id: string) => {
     setShow(true);
+    setCurrentId(id);
   };
 
   const hideModal = () => {
@@ -229,7 +258,7 @@ function QuoteApp() {
     localStorage.setItem("quotes", JSON.stringify(quotes));
   }
 
-  function onDragEnd(result: DropResult) : void {
+  function onDragEnd(result: DropResult): void {
     if (!result.destination) {
       return;
     }
@@ -275,17 +304,12 @@ function QuoteApp() {
 
   function EditTodo() {
     if (editTodo.trim() !== "") {
-      const editedTodo = {
-        id: `id-${state.quotes.length}`,
-        content: editTodo.trim(),
-      };
+      let findTodo: Quote | undefined = state?.quotes?.find(
+        (item) => item.id === currentId
+      );
+      findTodo.content = editTodo;
 
-      setState((prevState) => {
-        const quotes = [...prevState.quotes, editedTodo];
-        saveToDos(quotes);
-        return { quotes };
-      });
-
+      setState(state);
       setEditTodo("");
       setShow(false);
     }
@@ -303,11 +327,34 @@ function QuoteApp() {
         <Droppable droppableId="list">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              <QuoteList
-                quotes={state.quotes}
-                onRemove={onRemove}
-                onClick={showModal}
-              />
+              {state?.quotes?.map((quote, index) => {
+                return (
+                  <Draggable
+                    draggableId={quote.id}
+                    index={index}
+                    key={quote?.id}
+                  >
+                    {(provided) => (
+                      <QuoteItem
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        {quote.content}
+                        <div>
+                          <EditButton onClick={() => showModal(quote?.id)}>
+                            <FontAwesomeIcon icon={faPenToSquare} />
+                          </EditButton>
+                          <RemoveButton onClick={() => onRemove(quote.id)}>
+                            {" "}
+                            <FontAwesomeIcon icon={faTrash} />
+                          </RemoveButton>
+                        </div>
+                      </QuoteItem>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </div>
           )}
@@ -330,6 +377,12 @@ function QuoteApp() {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Footer>
+        Created by Omer Akgul{" "}
+        <StyledLink href="https://github.com/OmerAkgull" target="blank">
+          <GithubIcon icon={faGithub} />
+        </StyledLink>
+      </Footer>
     </>
   );
 }
