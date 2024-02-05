@@ -883,7 +883,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   background-color: white;
   border-radius: 5px;
   @media (max-width: 600px) {
-    width: 250px;
+    width: 330px;
   }
 `,EA=Qt.button`
   background-color: #be1313;
