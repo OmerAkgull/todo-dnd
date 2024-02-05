@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   DragDropContext,
@@ -18,7 +18,7 @@ type Quote = {
   content: string;
 };
 
-const initial = Array.from({ length: 0 }, (v, k) => k).map((k) => {
+const initial = Array.from({ length: 0 }, (k) => k).map((k) => {
   const custom: Quote = {
     id: `id-${k}`,
     content: `Quote ${k}`,
@@ -154,7 +154,8 @@ const GithubIcon = styled(FontAwesomeIcon)`
 
 const StyledLink = styled.a`
   text-decoration: none;
-  color:white;`;
+  color: white;
+`;
 
 type QuoteProps = {
   quote: {
@@ -307,11 +308,14 @@ function QuoteApp() {
       let findTodo: Quote | undefined = state?.quotes?.find(
         (item) => item.id === currentId
       );
-      findTodo.content = editTodo;
-
-      setState(state);
-      setEditTodo("");
-      setShow(false);
+      if (findTodo) {
+        findTodo.content = editTodo;
+        setState(state);
+        setEditTodo("");
+        setShow(false);
+      } else {
+        console.warn("Todo not found for id:", currentId);
+      }
     }
   }
 
