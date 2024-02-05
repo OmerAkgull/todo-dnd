@@ -121,9 +121,10 @@ const AddButton = styled.button`
 `;
 
 const EditInput = styled.input`
-  width: 100%;
-  border: 1px solid lightgrey;
+  width: 70%;
+  border: 2px solid black;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  margin-left: 15%;
 `;
 
 function Quote({ quote, index, onRemove, onClick }) {
@@ -163,11 +164,13 @@ const QuoteList = React.memo(function QuoteList({ quotes, onRemove, onClick }) {
   ));
 });
 
+
 function QuoteApp() {
   const [state, setState] = useState({ quotes: initial });
   const [todo, setTodo] = useState("");
   const [show, setShow] = useState(false);
   const [editTodo, setEditTodo] = useState("");
+  const [editedTodoId, setEditedTodoId] = useState(null)
 
   const showModal = () => {
     setShow(true);
